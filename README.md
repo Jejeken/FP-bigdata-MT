@@ -26,7 +26,7 @@ python -m venv venv
 ```  
 Windows:    
 ```
-.\venv\Scripts\activate
+venv\Scripts\activate
 ```  
 macOS/Linux:  
 ```
@@ -124,9 +124,9 @@ Dan terapkan:
 python manage.py migrate
 ```
 ## Tim
-[Nama Anggota 1] - [Peran/Kontribusi]  
-[Nama Anggota 2] - [Peran/Kontribusi]  
-[Tambahkan nama anggota tim lain]  
+Afifa Az Zahra Salsabila (5049221009)  
+Kahlil Gibran Al Zulmi (5049221015)  
+Jefta Kenna Shalom Tarigan (5049221019)  
 
 ## Butuh Bantuan?  
 Jika Anda mengalami masalah saat setup atau memiliki pertanyaan, jangan ragu untuk menghubungi tim melalui email 5049221015@student.its.ac.id.
