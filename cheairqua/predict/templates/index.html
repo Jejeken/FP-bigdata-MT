@@ -379,23 +379,19 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Indonesian cities for dropdown
-        const indonesianCities = [
-            { id: 'jakarta', name: 'Jakarta', coordinates: { lat: -6.2088, lng: 106.8456 } },
-            { id: 'surabaya', name: 'Surabaya', coordinates: { lat: -7.2575, lng: 112.7521 } },
-            { id: 'bandung', name: 'Bandung', coordinates: { lat: -6.9175, lng: 107.6191 } },
-            { id: 'medan', name: 'Medan', coordinates: { lat: 3.5952, lng: 98.6722 } },
-            { id: 'semarang', name: 'Semarang', coordinates: { lat: -6.9667, lng: 110.4167 } },
-            { id: 'makassar', name: 'Makassar', coordinates: { lat: -5.1477, lng: 119.4327 } },
-            { id: 'palembang', name: 'Palembang', coordinates: { lat: -2.9761, lng: 104.7754 } },
-            { id: 'tangerang', name: 'Tangerang', coordinates: { lat: -6.1783, lng: 106.6319 } },
-            { id: 'depok', name: 'Depok', coordinates: { lat: -6.4025, lng: 106.7942 } },
-            { id: 'bekasi', name: 'Bekasi', coordinates: { lat: -6.2383, lng: 106.9756 } }
+        // Locations for dropdown
+        const locations = [
+            { id: '1785694', name: 'Surin Meteorological Center, Thailand' },
+            { id: '1367443', name: 'Depok' },
+            { id: '3038744', name: 'Ocean Park, Singapura' },
+            { id: '8320', name: 'Jakarta Selatan' },
+            { id: '225612', name: 'Bansomdejchaopraya Rajabhat University' },
+            { id: '3400991', name: 'Potong Pasir, Singapura' }
         ];
 
         const LungDiseasePredictor = () => {
             const [currentStep, setCurrentStep] = useState(1);
-            const [selectedCity, setSelectedCity] = useState('');
+            const [selectedLocation, setSelectedLocation] = useState('');
             const [uploadedFile, setUploadedFile] = useState(null);
             const [imagePreview, setImagePreview] = useState('');
             const [airQualityData, setAirQualityData] = useState(null);
@@ -421,11 +417,11 @@
                 return { status: 'Berbahaya', color: '#742a2a' };
             };
 
-            const handleCityChange = async (cityId) => {
-                setSelectedCity(cityId);
+            const handleLocationChange = async (locationId) => {
+                setSelectedLocation(locationId);
                 setError('');
                 
-                if (cityId) {
+                if (locationId) {
                     setCurrentStep(2);
                     // Simulate air quality data fetch
                     try {
@@ -500,7 +496,7 @@
             };
 
             const performPrediction = async () => {
-                if (!selectedCity || !uploadedFile) {
+                if (!selectedLocation || !uploadedFile) {
                     setError('Pastikan lokasi dan gambar X-Ray sudah dipilih.');
                     return;
                 }
@@ -512,7 +508,7 @@
                 try {
                     const formData = new FormData();
                     formData.append('image', uploadedFile);
-                    formData.append('city', selectedCity);
+                    formData.append('location', selectedLocation);
                     
                     // Mock API call - replace with actual endpoint
                     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -565,7 +561,7 @@
 
             const resetForm = () => {
                 setCurrentStep(1);
-                setSelectedCity('');
+                setSelectedLocation('');
                 setUploadedFile(null);
                 setImagePreview('');
                 setAirQualityData(null);
@@ -576,7 +572,7 @@
                 }
             };
 
-            const canPredict = selectedCity && uploadedFile && !loading;
+            const canPredict = selectedLocation && uploadedFile && !loading;
 
             return (
                 <div className="app-container">
@@ -608,16 +604,16 @@
                                 Pilih Lokasi Tempat Tinggal
                             </h3>
                             <div className="form-group">
-                                <label htmlFor="city-select">Kota/Daerah</label>
+                                <label htmlFor="location-select">Kota/Daerah</label>
                                 <select 
-                                    id="city-select"
-                                    value={selectedCity} 
-                                    onChange={(e) => handleCityChange(e.target.value)}
+                                    id="location-select"
+                                    value={selectedLocation} 
+                                    onChange={(e) => handleLocationChange(e.target.value)}
                                 >
                                     <option value="">-- Pilih Kota --</option>
-                                    {indonesianCities.map(city => (
-                                        <option key={city.id} value={city.id}>
-                                            {city.name}
+                                    {locations.map(location => (
+                                        <option key={location.id} value={location.id}>
+                                            {location.name}
                                         </option>
                                     ))}
                                 </select>
@@ -799,7 +795,7 @@
                                 )}
 
                                 <div className="result-card">
-                                    <h4><i className="fas fa-wind"></i> Data Kualitas Udara - {indonesianCities.find(c => c.id === selectedCity)?.name}</h4>
+                                    <h4><i className="fas fa-wind"></i> Data Kualitas Udara - {locations.find(c => c.id === selectedLocation)?.name}</h4>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px', marginTop: '15px' }}>
                                         <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
                                             <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.aqi}</div>
