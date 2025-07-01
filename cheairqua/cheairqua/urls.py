@@ -16,11 +16,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from predict.views import index
+
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", index),
+    path("", index, name="home"), # Serves your app at the root URL
+    # This line correctly routes any URL starting with 'predict/' to your app's urls.py
+    path("predict/", include("predict.urls")),
 ]

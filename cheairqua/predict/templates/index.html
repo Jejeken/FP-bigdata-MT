@@ -397,6 +397,7 @@
             const [airQualityData, setAirQualityData] = useState(null);
             const [loading, setLoading] = useState(false);
             const [predictionResult, setPredictionResult] = useState(null);
+            const [loadingAirQuality, setLoadingAirQuality] = useState(false);
             const [error, setError] = useState('');
             const [dragOver, setDragOver] = useState(false);
             
@@ -408,36 +409,35 @@
                 { id: 3, label: 'Prediksi', icon: 'fas fa-brain' }
             ];
 
-            const getAQIStatus = (aqi) => {
-                if (aqi <= 50) return { status: 'Baik', color: '#48bb78' };
-                if (aqi <= 100) return { status: 'Sedang', color: '#ed8936' };
-                if (aqi <= 150) return { status: 'Tidak Sehat untuk Kelompok Sensitif', color: '#f56565' };
-                if (aqi <= 200) return { status: 'Tidak Sehat', color: '#c53030' };
-                if (aqi <= 300) return { status: 'Sangat Tidak Sehat', color: '#9c4221' };
-                return { status: 'Berbahaya', color: '#742a2a' };
-            };
+            
 
             const handleLocationChange = async (locationId) => {
                 setSelectedLocation(locationId);
+                setAirQualityData(null);
                 setError('');
                 
                 if (locationId) {
                     setCurrentStep(2);
-                    // Simulate air quality data fetch
+                    setLoadingAirQuality(true);
+
                     try {
-                        const mockAirQuality = {
-                            aqi: Math.floor(Math.random() * 200) + 50,
-                            pm25: Math.floor(Math.random() * 100) + 20,
-                            pm10: Math.floor(Math.random() * 150) + 30,
-                            o3: Math.floor(Math.random() * 200) + 50,
-                            no2: Math.floor(Math.random() * 100) + 20,
-                            so2: Math.floor(Math.random() * 50) + 10,
-                            co: Math.floor(Math.random() * 10) + 1
-                        };
-                        
-                        setAirQualityData(mockAirQuality);
+                        // Fetch from our Django backend API
+                        const response = await fetch(`/predict/api/air-quality/${locationId}/`);
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || `Gagal mengambil data: Status ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        setAirQualityData(data);
+
                     } catch (err) {
-                        setError('Gagal mengambil data kualitas udara. Silakan coba lagi.');
+                        
+                        setError(err.message || 'Gagal mengambil data kualitas udara. Silakan coba lagi.');
+                        setAirQualityData({ aqi_data: null, sensors: {} });
+                    } finally {
+                        setLoadingAirQuality(false);
                     }
                 }
             };
@@ -619,18 +619,26 @@
                                 </select>
                             </div>
 
-                            {airQualityData && (
+                            {(airQualityData || loadingAirQuality) && (
                                 <div className="air-quality-info">
-                                    <div className="aqi-score">
-                                        AQI: {airQualityData.aqi}
-                                    </div>
-                                    <div className="aqi-status">
-                                        Status: {getAQIStatus(airQualityData.aqi).status}
-                                    </div>
-                                    <div style={{ marginTop: '15px', fontSize: '0.9rem' }}>
-                                        PM2.5: {airQualityData.pm25} μg/m³ | PM10: {airQualityData.pm10} μg/m³ | 
-                                        O₃: {airQualityData.o3} μg/m³ | NO₂: {airQualityData.no2} μg/m³
-                                    </div>
+                                    {loadingAirQuality ? (
+                                        <div style={{ textAlign: 'center', padding: '20px' }}>
+                                            <div className="loading-spinner" style={{ width: '30px', height: '30px', margin: 'auto', borderTopColor: '#fff' }}></div>
+                                            <p style={{ marginTop: '10px' }}>Mengambil data kualitas udara...</p>
+                                        </div>
+                                    ) : airQualityData && (
+                                        <>
+                                            <div className="aqi-score">
+                                                AQI: {airQualityData.aqi_data?.aqi ?? 'N/A'}
+                                            </div>
+                                            <div className="aqi-status">
+                                                Status: {airQualityData.aqi_data?.category ?? 'Tidak Tersedia'}
+                                            </div>
+                                            <div style={{ marginTop: '15px', fontSize: '0.9rem' }}>
+                                                PM2.5: {airQualityData.pm25_value ?? 'N/A'} μg/m³ 
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -798,27 +806,27 @@
                                     <h4><i className="fas fa-wind"></i> Data Kualitas Udara - {locations.find(c => c.id === selectedLocation)?.name}</h4>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px', marginTop: '15px' }}>
                                         <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.aqi}</div>
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.aqi_data?.aqi ?? 'N/A'}</div>
                                             <div style={{ fontSize: '0.9rem', color: '#4a5568' }}>AQI</div>
                                         </div>
                                         <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.pm25}</div>
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.sensors?.pm25 ?? 'N/A'}</div>
                                             <div style={{ fontSize: '0.9rem', color: '#4a5568' }}>PM2.5</div>
                                         </div>
                                         <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.pm10}</div>
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.sensors?.pm10 ?? 'N/A'}</div>
                                             <div style={{ fontSize: '0.9rem', color: '#4a5568' }}>PM10</div>
                                         </div>
                                         <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.o3}</div>
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.sensors?.o3 ?? 'N/A'}</div>
                                             <div style={{ fontSize: '0.9rem', color: '#4a5568' }}>O₃</div>
                                         </div>
                                         <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.no2}</div>
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.sensors?.no2 ?? 'N/A'}</div>
                                             <div style={{ fontSize: '0.9rem', color: '#4a5568' }}>NO₂</div>
                                         </div>
                                         <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.so2}</div>
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{predictionResult.airQualityData.sensors?.so2 ?? 'N/A'}</div>
                                             <div style={{ fontSize: '0.9rem', color: '#4a5568' }}>SO₂</div>
                                         </div>
                                     </div>
@@ -873,7 +881,9 @@
             );
         };
 
-        ReactDOM.render(<LungDiseasePredictor />, document.getElementById('root'));
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<LungDiseasePredictor />);
     </script>
     {%endverbatim%}
 </body>
