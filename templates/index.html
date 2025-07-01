@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Prediksi Risiko Penyakit Paru - Complete</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #4a5568;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            background: #f7fafc;
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .step.completed {
+            background: #48bb78;
+            color: white;
+            border-color: #48bb78;
+        }
+
+        .step i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .form-group select:focus, .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .upload-area.drag-over {
+            border-color: #667eea;
+            background: #e6fffa;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #a0aec0;
+            margin-bottom: 15px;
+        }
+
+        .upload-area.has-file {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .upload-area.has-file .upload-icon {
+            color: #48bb78;
+        }
+
+        .image-preview {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 10px;
+            margin: 15px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-info {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .air-quality-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .aqi-score {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .aqi-status {
+            text-align: center;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .data-source-indicator {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .predict-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .predict-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .predict-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            margin-top: 30px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .result-icon.normal {
+            background: #48bb78;
+        }
+
+        .result-icon.abnormal {
+            background: #f56565;
+        }
+
+        .confidence-bar {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .recommendation-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .recommendation-list li:last-child {
+            border-bottom: none;
+        }
+
+        .recommendation-list i {
+            color: #667eea;
+            margin-top: 2px;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .city-loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .city-count-info {
+            background: #e6fffa;
+            border: 1px solid #38b2ac;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #285e61;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-card {
+                margin: 10px;
+                padding: 25px;
+            }
+            
+            .step-indicator {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    {% verbatim %}
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const CompleteLungPredictor = () => {
+            const [currentStep, setCurrentStep] = useState(1);
+            const [selectedCity, setSelectedCity] = useState('');
+            const [uploadedFile, setUploadedFile] = useState(null);
+            const [imagePreview, setImagePreview] = useState('');
+            const [airQualityData, setAirQualityData] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [predictionResult, setPredictionResult] = useState(null);
+            const [error, setError] = useState('');
+            const [dragOver, setDragOver] = useState(false);
+            
+            const [availableCities, setAvailableCities] = useState([]);
+            const [citiesLoading, setCitiesLoading] = useState(true);
+            
+            const fileInputRef = useRef(null);
+
+            const steps = [
+                { id: 1, label: 'Pilih Kota', icon: 'fas fa-map-marker-alt' },
+                { id: 2, label: 'Upload X-Ray', icon: 'fas fa-upload' },
+                { id: 3, label: 'Prediksi', icon: 'fas fa-brain' }
+            ];
+
+            // Enhanced fallback data - matching backend structure
+            const fallbackCities = [
+                { code: 'indonesia', name: 'Indonesia (Default to Jakarta)', region: 'Nasional', aqi_estimate: 151, description: 'Tidak Sehat untuk Kelompok Sensitif' },
+                { code: 'jakarta', name: 'Jakarta', region: 'DKI Jakarta', aqi_estimate: 151, description: 'Tidak Sehat' },
+                { code: 'medan', name: 'Medan', region: 'Sumatera Utara', aqi_estimate: 162, description: 'Tidak Sehat' },
+                { code: 'semarang', name: 'Semarang', region: 'Jawa Tengah', aqi_estimate: 95, description: 'Sedang' },
+                { code: 'palembang', name: 'Palembang', region: 'Sumatera Selatan', aqi_estimate: 43, description: 'Baik' },
+                { code: 'malang', name: 'Malang', region: 'Jawa Timur', aqi_estimate: 78, description: 'Sedang' },
+                { code: 'jogjakarta', name: 'Yogyakarta', region: 'DI Yogyakarta', aqi_estimate: 123, description: 'Tidak Sehat untuk Kelompok Sensitif' },
+                { code: 'pontianak', name: 'Pontianak', region: 'Kalimantan Barat', aqi_estimate: 62, description: 'Sedang' }
+            ];
+
+            useEffect(() => {
+                loadAvailableCities();
+            }, []);
+
+            const loadAvailableCities = async () => {
+                try {
+                    setCitiesLoading(true);
+                    console.log('Loading Indonesian cities from backend...');
+                    
+                    const response = await fetch('/prediction/cities/?preview=true');
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data.success && data.cities && data.cities.length > 0) {
+                            setAvailableCities(data.cities);
+                            console.log('✅ Backend cities loaded:', data.cities.length);
+                            console.log('Real-time preview:', data.realtime_preview);
+                        } else {
+                            console.log('⚠️ Backend returned empty cities, using fallback');
+                            setAvailableCities(fallbackCities);
+                        }
+                    } else {
+                        console.log('⚠️ Backend error, using fallback cities');
+                        setAvailableCities(fallbackCities);
+                    }
+                } catch (err) {
+                    console.error('❌ Error loading cities:', err);
+                    console.log('Using fallback cities due to error');
+                    setAvailableCities(fallbackCities);
+                } finally {
+                    setCitiesLoading(false);
+                }
+            };
+
+            const getAQIStatus = (aqi) => {
+                if (aqi <= 50) return { status: 'Baik', color: '#48bb78' };
+                if (aqi <= 100) return { status: 'Sedang', color: '#ed8936' };
+                if (aqi <= 150) return { status: 'Tidak Sehat untuk Kelompok Sensitif', color: '#f56565' };
+                if (aqi <= 200) return { status: 'Tidak Sehat', color: '#c53030' };
+                if (aqi <= 300) return { status: 'Sangat Tidak Sehat', color: '#9c4221' };
+                return { status: 'Berbahaya', color: '#742a2a' };
+            };
+
+            const handleCityChange = async (cityCode) => {
+                setSelectedCity(cityCode);
+                setError('');
+                
+                if (cityCode) {
+                    setCurrentStep(2);
+                    
+                    try {
+                        console.log('Fetching air quality for:', cityCode);
+                        
+                        const response = await fetch(`/prediction/air-quality/${cityCode}/`);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            
+                            if (data.success && data.data) {
+                                setAirQualityData(data.data);
+                                console.log('✅ Air quality loaded:', data.data);
+                                console.log('Data source:', data.data.data_source);
+                            } else {
+                                setError('Gagal mengambil data kualitas udara.');
+                                console.error('Air quality API error:', data);
+                            }
+                        } else {
+                            setError('Gagal mengambil data kualitas udara.');
+                            console.error('Air quality HTTP error:', response.status);
+                        }
+                    } catch (err) {
+                        console.error('Error fetching air quality:', err);
+                        setError('Gagal mengambil data kualitas udara. Silakan coba lagi.');
+                    }
+                }
+            };
+
+            const handleFileUpload = (file) => {
+                setError('');
+                
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                
+                if (!validTypes.includes(file.type)) {
+                    setError('Format file tidak didukung. Gunakan JPEG, JPG, atau PNG.');
+                    return;
+                }
+                
+                if (file.size > maxSize) {
+                    setError('Ukuran file terlalu besar. Maksimal 10MB.');
+                    return;
+                }
+                
+                setUploadedFile(file);
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    setImagePreview(e.target.result);
+                    setCurrentStep(3);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                setDragOver(false);
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            };
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                setDragOver(true);
+            };
+
+            const handleDragLeave = (e) => {
+                e.preventDefault();
+                setDragOver(false);
+            };
+
+            const handleFileInputChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFileUpload(file);
+                }
+            };
+
+            const performPrediction = async () => {
+                if (!selectedCity || !uploadedFile) {
+                    setError('Pastikan kota dan gambar X-Ray sudah dipilih.');
+                    return;
+                }
+
+                setLoading(true);
+                setError('');
+                setPredictionResult(null);
+
+                try {
+                    const formData = new FormData();
+                    formData.append('image', uploadedFile);
+                    formData.append('city', selectedCity);
+                    
+                    console.log('Sending prediction request for city:', selectedCity);
+                    
+                    const response = await fetch('/prediction/predict/', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Prediction response:', data);
+                        
+                        if (data.success) {
+                            const result = {
+                                classification: data.classification,
+                                confidence: data.confidence,
+                                airQualityData: data.air_quality_data,
+                                riskPrediction: data.risk_prediction || null,
+                                dataEnhancement: data.data_enhancement || {},
+                                selectedCity: data.selected_city
+                            };
+
+                            // Add treatment recommendation for abnormal cases
+                            if (data.classification && data.classification.toLowerCase() !== 'normal') {
+                                result.treatmentRecommendation = {
+                                    severity: data.confidence > 0.8 ? 'Tinggi' : 'Sedang',
+                                    immediateActions: [
+                                        'Konsultasi segera dengan dokter spesialis paru',
+                                        'Lakukan isolasi mandiri jika diperlukan',
+                                        'Pantau gejala seperti demam dan batuk',
+                                        'Istirahat yang cukup dan hindari aktivitas berat'
+                                    ],
+                                    medications: [
+                                        'Sesuai resep dokter spesialis',
+                                        'Ekspektoran untuk melancarkan dahak',
+                                        'Vitamin C dan D untuk meningkatkan imunitas',
+                                        'Obat penurun demam jika diperlukan'
+                                    ],
+                                    followUp: 'Kontrol kembali dalam 1-2 minggu atau jika gejala memburuk'
+                                };
+                            }
+
+                            setPredictionResult(result);
+                        } else {
+                            setError(data.error || 'Terjadi kesalahan saat melakukan prediksi.');
+                        }
+                    } else {
+                        setError(`HTTP Error ${response.status}: Gagal melakukan prediksi.`);
+                    }
+                } catch (err) {
+                    console.error('Prediction error:', err);
+                    setError('Terjadi kesalahan saat melakukan prediksi. Silakan coba lagi.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const resetForm = () => {
+                setCurrentStep(1);
+                setSelectedCity('');
+                setUploadedFile(null);
+                setImagePreview('');
+                setAirQualityData(null);
+                setPredictionResult(null);
+                setError('');
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+            };
+
+            const canPredict = selectedCity && uploadedFile && !loading;
+
+            return (
+                <div className="app-container">
+                    <div className="header">
+                        <h1>
+                            <i className="fas fa-lungs"></i> 
+                            Sistem Prediksi Risiko Penyakit Paru
+                        </h1>
+                        <p>
+                            Analisis citra X-Ray toraks dengan data kualitas udara real-time untuk deteksi dini dan pencegahan penyakit paru
+                        </p>
+                        
+                        {availableCities.length > 0 && (
+                            <div className="city-count-info">
+                                <i className="fas fa-info-circle"></i>
+                                {` ${availableCities.length} kota Indonesia tersedia dengan data enhanced dari aqicn.org`}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="main-card">
+                        <div className="step-indicator">
+                            {steps.map(step => (
+                                <div 
+                                    key={step.id} 
+                                    className={`step ${
+                                        currentStep > step.id ? 'completed' : 
+                                        currentStep === step.id ? 'active' : ''
+                                    }`}
+                                >
+                                    <i className={step.icon}></i>
+                                    {step.label}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Step 1: City Selection */}
+                        <div className="form-section">
+                            <h3>
+                                <i className="fas fa-map-marker-alt"></i>
+                                Pilih Kota di Indonesia
+                            </h3>
+                            <div className="form-group">
+                                <label htmlFor="city-select">Kota / Wilayah</label>
+                                {citiesLoading ? (
+                                    <div className="city-loading">
+                                        <i className="fas fa-spinner fa-spin"></i> Memuat daftar kota...
+                                    </div>
+                                ) : (
+                                    <select 
+                                        id="city-select"
+                                        value={selectedCity} 
+                                        onChange={(e) => handleCityChange(e.target.value)}
+                                    >
+                                        <option value="">-- Pilih Kota --</option>
+                                        {availableCities.map(city => (
+                                            <option key={city.code} value={city.code}>
+                                                {`🏙️ ${city.name} ${city.region ? `(${city.region})` : ''} - AQI: ~${city.aqi_estimate}`}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+
+                            {airQualityData && (
+                                <div className="air-quality-info">
+                                    <div className="aqi-score">
+                                        AQI: {airQualityData.aqi}
+                                    </div>
+                                    <div className="aqi-status">
+                                        Status: {getAQIStatus(airQualityData.aqi).status}
+                                    </div>
+                                    <div style={{ marginTop: '15px', fontSize: '0.9rem' }}>
+                                        PM2.5: {airQualityData.pm25} μg/m³ | 
+                                        PM10: {airQualityData.pm10 || 'N/A'} μg/m³ | 
+                                        Humidity: {airQualityData.humidity}% | 
+                                        Temp: {airQualityData.temperature}°C
+                                    </div>
+                                    
+                                    <div className="data-source-indicator">
+                                        <i className={airQualityData.data_source === 'aqicn_realtime' ? 'fas fa-satellite-dish' : 'fas fa-database'}></i>
+                                        {` ${airQualityData.data_source === 'aqicn_realtime' ? 'Data Real-time dari aqicn.org' : 
+                                             airQualityData.data_source === 'static_indonesian_fallback' ? 'Data Static Indonesia' : 'Data Fallback'}`}
+                                        {airQualityData.station_name && (
+                                            <div>{`Station: ${airQualityData.station_name}`}</div>
+                                        )}
+                                        {airQualityData.last_update && (
+                                            <div>{`Update: ${airQualityData.last_update}`}</div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Step 2: Image Upload */}
+                        {currentStep >= 2 && (
+                            <div className="form-section">
+                                <h3>
+                                    <i className="fas fa-upload"></i>
+                                    Upload Citra X-Ray Toraks
+                                </h3>
+                                <div 
+                                    className={`upload-area ${dragOver ? 'drag-over' : ''} ${uploadedFile ? 'has-file' : ''}`}
+                                    onDrop={handleDrop}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    <div className="upload-icon">
+                                        <i className={uploadedFile ? 'fas fa-check-circle' : 'fas fa-cloud-upload-alt'}></i>
+                                    </div>
+                                    <div>
+                                        {uploadedFile ? (
+                                            <>
+                                                <h4>File berhasil diupload!</h4>
+                                                <p>Klik untuk mengganti file</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <h4>Drag & drop file X-Ray atau klik untuk browse</h4>
+                                                <p>Format: JPEG, JPG, PNG (Max: 10MB)</p>
+                                            </>
+                                        )}
+                                    </div>
+                                    <input 
+                                        ref={fileInputRef}
+                                        type="file" 
+                                        accept="image/jpeg,image/jpg,image/png"
+                                        onChange={handleFileInputChange}
+                                        style={{ display: 'none' }}
+                                    />
+                                </div>
+
+                                {imagePreview && (
+                                    <div>
+                                        <img src={imagePreview} alt="X-Ray Preview" className="image-preview" />
+                                        <div className="file-info">
+                                            <strong>File:</strong> {uploadedFile?.name}<br/>
+                                            <strong>Ukuran:</strong> {(uploadedFile?.size / 1024 / 1024).toFixed(2)} MB<br/>
+                                            <strong>Type:</strong> {uploadedFile?.type}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Step 3: Prediction */}
+                        {currentStep >= 3 && (
+                            <div className="form-section">
+                                <button 
+                                    className="predict-button"
+                                    onClick={performPrediction}
+                                    disabled={!canPredict}
+                                >
+                                    {loading ? (
+                                        <>
+                                            <div className="loading-spinner"></div>
+                                            Menganalisis dengan Data Real-time...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fas fa-brain"></i>
+                                            Prediksi Risiko Penyakit Paru
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Error Message */}
+                        {error && (
+                            <div className="error-message">
+                                <i className="fas fa-exclamation-triangle"></i>
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Results Display */}
+                        {predictionResult && (
+                            <div className="results-section">
+                                <h3>
+                                    <i className="fas fa-chart-line"></i>
+                                    Hasil Analisis
+                                </h3>
+
+                                {/* Enhanced System Info */}
+                                {predictionResult.dataEnhancement && (
+                                    <div className="result-card" style={{ background: '#f0f9ff', borderLeft: '4px solid #0284c7' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                            <i className="fas fa-info-circle" style={{ color: '#0284c7' }}></i>
+                                            <strong>Enhanced Analysis</strong>
+                                        </div>
+                                        <div style={{ fontSize: '0.9rem', color: '#475569' }}>
+                                            <div>{`📊 ${predictionResult.dataEnhancement.total_cities_available || availableCities.length} kota Indonesia tersedia`}</div>
+                                            <div>{`🌐 Data Source: ${predictionResult.dataEnhancement.data_source_type || 'Enhanced'}`}</div>
+                                            <div>{`⚡ Real-time: ${predictionResult.dataEnhancement.real_time_enabled ? '✅ Active' : '⚠️ Fallback'}`}</div>
+                                            <div>{`🏙️ Selected: ${predictionResult.selectedCity || selectedCity}`}</div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* X-ray Classification Result */}
+                                <div className="result-card">
+                                    <div className="result-header">
+                                        <div className={`result-icon ${predictionResult.classification && predictionResult.classification.toLowerCase() === 'normal' ? 'normal' : 'abnormal'}`}>
+                                            <i className={predictionResult.classification && predictionResult.classification.toLowerCase() === 'normal' ? 'fas fa-check' : 'fas fa-exclamation'}></i>
+                                        </div>
+                                        <div>
+                                            <h4>{`Klasifikasi X-Ray: ${predictionResult.classification ? predictionResult.classification.toUpperCase() : 'UNKNOWN'}`}</h4>
+                                            <p>{`Confidence: ${predictionResult.confidence ? (predictionResult.confidence * 100).toFixed(1) : '0'}%`}</p>
+                                            <div className="confidence-bar">
+                                                <div 
+                                                    className="confidence-fill" 
+                                                    style={{ width: `${predictionResult.confidence ? predictionResult.confidence * 100 : 0}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Risk Prediction for Normal Cases */}
+                                {predictionResult.riskPrediction && predictionResult.classification && predictionResult.classification.toLowerCase() === 'normal' && (
+                                    <div className="result-card">
+                                        <div className="result-header">
+                                            <div className="result-icon" style={{ background: '#667eea' }}>
+                                                <i className="fas fa-chart-line"></i>
+                                            </div>
+                                            <div>
+                                                <h4>Prediksi Risiko Penyakit Paru</h4>
+                                                <p>Berdasarkan Data Real-time Kualitas Udara & AI Analysis</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style={{ marginTop: '15px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                <strong>{`Risk Level: ${predictionResult.riskPrediction.risk_level || 'Unknown'}`}</strong>
+                                                <span style={{ 
+                                                    background: predictionResult.riskPrediction.risk_level === 'Tinggi' ? '#f56565' : 
+                                                               predictionResult.riskPrediction.risk_level === 'Sedang' ? '#ed8936' : '#48bb78',
+                                                    color: 'white',
+                                                    padding: '4px 12px',
+                                                    borderRadius: '20px',
+                                                    fontSize: '0.85rem'
+                                                }}>
+                                                    {`${predictionResult.riskPrediction.confidence_percentage || 0}% Confidence`}
+                                                </span>
+                                            </div>
+                                            
+                                            {predictionResult.riskPrediction.used_realtime_data && (
+                                                <div style={{ 
+                                                    background: '#ecfdf5', 
+                                                    border: '1px solid #22c55e', 
+                                                    borderRadius: '6px', 
+                                                    padding: '8px', 
+                                                    marginBottom: '15px',
+                                                    fontSize: '0.85rem',
+                                                    color: '#15803d'
+                                                }}>
+                                                    <i className="fas fa-satellite-dish"></i> 
+                                                    {` Prediksi menggunakan data real-time dari ${predictionResult.riskPrediction.air_quality_city || selectedCity}`}
+                                                </div>
+                                            )}
+                                            
+                                            <div style={{ marginBottom: '15px' }}>
+                                                <strong>{`Timeline Pemeriksaan: ${predictionResult.riskPrediction.timeline_months || 'Unknown'} bulan`}</strong>
+                                            </div>
+                                            
+                                            <div>
+                                                <strong>Rekomendasi:</strong>
+                                                <ul className="recommendation-list">
+                                                    {(predictionResult.riskPrediction.recommendations || ['Konsultasi dengan dokter untuk pemeriksaan lebih lanjut']).slice(0, 6).map((rec, index) => (
+                                                        <li key={index}>
+                                                            <i className="fas fa-check-circle"></i>
+                                                            {rec}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Treatment Recommendation for Abnormal Cases */}
+                                {predictionResult.treatmentRecommendation && predictionResult.classification && predictionResult.classification.toLowerCase() !== 'normal' && (
+                                    <div className="result-card">
+                                        <div className="result-header">
+                                            <div className="result-icon abnormal">
+                                                <i className="fas fa-medical-kit"></i>
+                                            </div>
+                                            <div>
+                                                <h4>{`Rekomendasi Pengobatan - ${predictionResult.classification ? predictionResult.classification.toUpperCase() : 'ABNORMAL'}`}</h4>
+                                                <p>{`Severity: ${predictionResult.treatmentRecommendation.severity}`}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style={{ marginTop: '15px' }}>
+                                            <div style={{ marginBottom: '15px' }}>
+                                                <strong>Tindakan Segera:</strong>
+                                                <ul className="recommendation-list">
+                                                    {predictionResult.treatmentRecommendation.immediateActions.map((action, index) => (
+                                                        <li key={index}>
+                                                            <i className="fas fa-exclamation-triangle"></i>
+                                                            {action}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            
+                                            <div style={{ marginBottom: '15px' }}>
+                                                <strong>Obat-obatan:</strong>
+                                                <ul className="recommendation-list">
+                                                    {predictionResult.treatmentRecommendation.medications.map((med, index) => (
+                                                        <li key={index}>
+                                                            <i className="fas fa-pills"></i>
+                                                            {med}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            
+                                            <div>
+                                                <strong>{`Follow-up: ${predictionResult.treatmentRecommendation.followUp}`}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                                    <button 
+                                        onClick={resetForm}
+                                        style={{
+                                            background: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '12px 30px',
+                                            borderRadius: '25px',
+                                            fontSize: '1rem',
+                                            fontWeight: '600',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <i className="fas fa-redo"></i>
+                                        Analisis Baru
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Debug Info */}
+                        <div style={{ 
+                            background: '#f8f9fa', 
+                            padding: '15px', 
+                            borderRadius: '8px', 
+                            marginTop: '20px',
+                            fontSize: '0.85rem',
+                            color: '#666'
+                        }}>
+                            <strong>System Status:</strong><br/>
+                            Cities loaded: {availableCities.length}<br/>
+                            Selected city: {selectedCity || 'None'}<br/>
+                            Air quality data: {airQualityData ? `AQI ${airQualityData.aqi} (${airQualityData.data_source})` : 'None'}<br/>
+                            Current step: {currentStep}/3<br/>
+                            Upload ready: {uploadedFile ? '✅' : '❌'}<br/>
+                            Prediction ready: {canPredict ? '✅' : '❌'}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<CompleteLungPredictor />, document.getElementById('root'));
+    </script>
+    {% endverbatim %}
+</body>
+</html>
