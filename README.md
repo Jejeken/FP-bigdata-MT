@@ -9,10 +9,9 @@ Sistem AI untuk prediksi risiko penyakit paru yang menggabungkan analisis citra 
 ## ✨ Fitur Utama
 
 - **🔍 Klasifikasi X-Ray**: ResNet model untuk deteksi Normal/COVID-19/Pneumonia/TB
-- **🌍 Data Real-time**: Integrasi 13+ kota Indonesia dengan aqicn.org API
+- **🌍 Data Real-time**: Integrasi 13 kota Indonesia dengan aqicn.org API
 - **⚖️ Enhanced Prediction**: AQI weighting 85% + LogReg 15% untuk akurasi tinggi
 - **📊 Risk Classification**: AQI <100 (Rendah), 100-150 (Sedang), >150 (Tinggi)
-- **🔄 Fallback System**: Multi-layer fallback untuk 99.9% uptime
 - **📱 Modern UI**: React interface dengan real-time indicators
 
 ## 🏗️ Arsitektur Proyek
@@ -156,7 +155,7 @@ python manage.py runserver
 ### **Machine Learning Models**
 - **ResNet Model**: Pre-trained untuk X-ray classification
   - **Classes**: Normal, COVID-19, Pneumonia, Tuberkulosis
-  - **Input**: 224x224 RGB images
+  - **Input**: 224x224 RGB images dari dataset : https://www.kaggle.com/datasets/pritpal2873/chest-x-ray-dataset-4-categories?resource=download
   - **Output**: Classification + confidence scores
 
 - **Logistic Regression**: Environmental risk prediction
